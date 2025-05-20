@@ -44,6 +44,13 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
         
+        .info-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
         .theme-indicator {
             display: inline-block;
             width: 15px;
@@ -52,12 +59,56 @@
             border-radius: 50%;
         }
         
-        .perspective-switch {
-            margin-bottom: 20px;
-        }
-        
         .story-point-btn {
             margin: 5px;
+            position: relative;
+        }
+        
+        .story-point-remove {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .story-point-btn:hover .story-point-remove {
+            opacity: 1;
+        }
+        
+        .theme-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .theme-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .theme-item-remove {
+            cursor: pointer;
+            color: #dc3545;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+        
+        .theme-item-remove:hover {
+            opacity: 1;
         }
         
         footer {
@@ -80,9 +131,12 @@
         }
         
         /* Event form */
-        #event-form-container {
+        #event-form-container,
+        #perspective-form-container,
+        #theme-form-container,
+        #story-point-form-container {
             display: none;
-            margin-top: 30px;
+            margin-top: 20px;
         }
         
         .multimedia-item {
@@ -90,7 +144,7 @@
             padding: 15px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            background-color: #f9f9f9;
+            background-color: #f9f9fa;
         }
         
         .remove-button {
@@ -173,10 +227,15 @@
             <button id="move-right" class="btn btn-outline-primary">Move Forward <i class="fas fa-arrow-right"></i></button>
         </div>
         
-        <div class="perspective-switch d-flex justify-content-between align-items-center">
-            <div class="btn-group" id="perspective-buttons" role="group"></div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-inline-block">
+                <select id="active-perspective" class="form-select form-select-sm">
+                    <!-- Perspective options will be added here -->
+                </select>
+            </div>
             <div class="timeline-controls">
-                <button id="add-event-btn" class="btn btn-success"><i class="fas fa-plus"></i> Add Event</button>
+                <button id="add-event-btn" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Add Event</button>
+                <button id="add-perspective-btn" class="btn btn-outline-primary btn-sm ms-1"><i class="fas fa-layer-group"></i> Add Perspective</button>
                 <div class="d-inline-block ms-2">
                     <select id="theme-selector" class="form-select form-select-sm">
                         <option value="modern">Modern Theme</option>
@@ -320,6 +379,89 @@
             </form>
         </div>
         
+        <!-- Perspective Form Container -->
+        <div id="perspective-form-container" class="info-section">
+            <h3>Add New Perspective</h3>
+            <form id="perspective-form">
+                <div class="mb-3">
+                    <label for="perspective-name" class="form-label">Perspective Name *</label>
+                    <input type="text" class="form-control" id="perspective-name" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="perspective-color" class="form-label">Color *</label>
+                    <input type="color" class="form-control form-control-color" id="perspective-color" value="#3498db">
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <button type="button" id="cancel-perspective-btn" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Perspective</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Theme Form Container -->
+        <div id="theme-form-container" class="info-section">
+            <h3>Add New Theme</h3>
+            <form id="theme-form">
+                <div class="mb-3">
+                    <label for="theme-name" class="form-label">Theme Name *</label>
+                    <input type="text" class="form-control" id="theme-name" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="theme-color" class="form-label">Color *</label>
+                    <input type="color" class="form-control form-control-color" id="theme-color" value="#28a745">
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <button type="button" id="cancel-theme-btn" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Theme</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Story Point Form Container -->
+        <div id="story-point-form-container" class="info-section">
+            <h3>Add New Story Point</h3>
+            <form id="story-point-form">
+                <div class="mb-3">
+                    <label for="story-point-name" class="form-label">Story Point Name *</label>
+                    <input type="text" class="form-control" id="story-point-name" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="story-point-date" class="form-label">Center Date *</label>
+                    <input type="date" class="form-control" id="story-point-date" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="story-point-zoom" class="form-label">Zoom Level *</label>
+                    <input type="number" class="form-control" id="story-point-zoom" min="1" max="10" value="3" required>
+                    <small class="text-muted">1 = Very zoomed out, 10 = Very zoomed in</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Focus on Events</label>
+                    <div id="story-point-events" class="mb-2">
+                        <!-- Event checkboxes will be inserted here -->
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Active Perspectives</label>
+                    <div id="story-point-perspectives" class="mb-2">
+                        <!-- Perspective checkboxes will be inserted here -->
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <button type="button" id="cancel-story-point-btn" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Story Point</button>
+                </div>
+            </form>
+        </div>
+        
         <div class="row">
             <div class="col-md-8">
                 <div class="info-section">
@@ -329,12 +471,22 @@
             </div>
             <div class="col-md-4">
                 <div class="info-section">
-                    <h3>Story Points</h3>
+                    <div class="info-section-header">
+                        <h3>Story Points</h3>
+                        <button id="add-story-point-btn" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </div>
                     <div id="story-points-container"></div>
                 </div>
                 
                 <div class="info-section">
-                    <h3>Themes</h3>
+                    <div class="info-section-header">
+                        <h3>Themes</h3>
+                        <button id="add-theme-btn" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </div>
                     <div id="themes-container"></div>
                 </div>
             </div>
@@ -452,119 +604,67 @@
                 applyTheme(timelineData.globalSettings.defaultTheme || 'modern');
                 
                 // Setup themes
-                const themesContainer = document.getElementById('themes-container');
-                const themeCheckboxes = document.getElementById('theme-checkboxes');
+                refreshThemesDisplay();
                 
-                timelineData.themes.forEach(theme => {
-                    // Add to themes display
-                    const themeElement = document.createElement('div');
-                    themeElement.className = 'mb-2';
-                    themeElement.innerHTML = `
-                        <span class="theme-indicator" style="background-color: ${theme.color};"></span>
-                        <span>${theme.name}</span>
-                    `;
-                    themesContainer.appendChild(themeElement);
-                    
-                    // Add to theme checkboxes in form
-                    const checkboxDiv = document.createElement('div');
-                    checkboxDiv.className = 'form-check';
-                    checkboxDiv.innerHTML = `
-                        <input class="form-check-input theme-checkbox" type="checkbox" value="${theme.id}" id="theme-${theme.id}">
-                        <label class="form-check-label" for="theme-${theme.id}">
-                            <span class="theme-indicator" style="background-color: ${theme.color};"></span>
-                            ${theme.name}
-                        </label>
-                    `;
-                    themeCheckboxes.appendChild(checkboxDiv);
-                });
+                // Setup perspectives dropdown
+                const perspectiveSelect = document.getElementById('active-perspective');
+                const eventPerspectiveSelect = document.getElementById('event-perspective');
                 
-                // Setup perspective buttons
-                const perspectiveButtons = document.getElementById('perspective-buttons');
-                const perspectiveSelect = document.getElementById('event-perspective');
+                // Clear existing options
+                perspectiveSelect.innerHTML = '';
+                eventPerspectiveSelect.innerHTML = '';
                 
                 timelineData.perspectives.forEach((perspective, index) => {
-                    // Add to perspective buttons
-                    const button = document.createElement('button');
-                    button.type = 'button';
-                    button.className = `btn btn-outline-primary ${index === 0 ? 'active' : ''}`;
-                    button.textContent = perspective.perspectiveName;
-                    button.dataset.perspectiveId = perspective.perspectiveId;
-                    button.style.borderColor = perspective.perspectiveColor;
-                    button.style.color = index === 0 ? '#fff' : perspective.perspectiveColor;
-                    button.style.backgroundColor = index === 0 ? perspective.perspectiveColor : 'transparent';
-                    
-                    button.addEventListener('click', function() {
-                        // Deactivate all buttons
-                        perspectiveButtons.querySelectorAll('button').forEach(btn => {
-                            const btnPerspective = timelineData.perspectives.find(p => p.perspectiveId === btn.dataset.perspectiveId);
-                            btn.classList.remove('active');
-                            btn.style.backgroundColor = 'transparent';
-                            btn.style.color = btnPerspective.perspectiveColor;
-                        });
-                        
-                        // Activate clicked button
-                        this.classList.add('active');
-                        this.style.backgroundColor = perspective.perspectiveColor;
-                        this.style.color = '#fff';
-                        
-                        // Update current perspective and events
-                        activePerspective = perspective;
-                        currentEvents = perspective.events;
-                        
-                        // Update timeline with this perspective's events
-                        updateTimelineEvents(perspective.events);
-                    });
-                    
-                    perspectiveButtons.appendChild(button);
-                    
-                    // Add to perspective dropdown in form
+                    // Add to perspective dropdown
                     const option = document.createElement('option');
                     option.value = perspective.perspectiveId;
                     option.textContent = perspective.perspectiveName;
+                    option.style.color = perspective.perspectiveColor;
                     perspectiveSelect.appendChild(option);
+                    
+                    // Add to event form perspective dropdown
+                    const eventOption = document.createElement('option');
+                    eventOption.value = perspective.perspectiveId;
+                    eventOption.textContent = perspective.perspectiveName;
+                    eventPerspectiveSelect.appendChild(eventOption);
                 });
                 
                 // Set the first perspective as active
-                activePerspective = timelineData.perspectives[0];
-                currentEvents = activePerspective.events;
+                if (timelineData.perspectives.length > 0) {
+                    activePerspective = timelineData.perspectives[0];
+                    currentEvents = activePerspective.events;
+                    perspectiveSelect.value = activePerspective.perspectiveId;
+                }
+                
+                // Perspective change handler
+                perspectiveSelect.addEventListener('change', function() {
+                    const perspectiveId = this.value;
+                    const perspective = timelineData.perspectives.find(p => p.perspectiveId === perspectiveId);
+                    
+                    if (perspective) {
+                        activePerspective = perspective;
+                        currentEvents = activePerspective.events;
+                        updateTimelineEvents(currentEvents);
+                    }
+                });
                 
                 // Setup story points
-                const storyPointsContainer = document.getElementById('story-points-container');
-                timelineData.storyPoints.forEach(storyPoint => {
-                    const button = document.createElement('button');
-                    button.type = 'button';
-                    button.className = 'btn btn-sm btn-outline-secondary story-point-btn';
-                    button.textContent = storyPoint.name;
-                    
-                    button.addEventListener('click', function() {
-                        // Apply this story point settings to timeline
-                        timeline.moveTo(storyPoint.centerDate, {
-                            animation: {
-                                duration: 1000,
-                                easingFunction: 'easeInOutQuad'
-                            },
-                            zoom: true
-                        });
-                        
-                        // Focus on specific events
-                        timeline.setSelection(storyPoint.focusedEventIds);
-                        
-                        // Switch to active perspectives
-                        perspectiveButtons.querySelectorAll('button').forEach(btn => {
-                            if (storyPoint.activePerspectiveIds.includes(btn.dataset.perspectiveId)) {
-                                btn.click();
-                            }
-                        });
-                    });
-                    
-                    storyPointsContainer.appendChild(button);
-                });
+                refreshStoryPointsDisplay();
                 
                 // Initialize the timeline with the first perspective's events
                 initializeVisTimeline(currentEvents);
                 
                 // Setup event form handlers
                 setupEventForm();
+                
+                // Setup perspective form handlers
+                setupPerspectiveForm();
+                
+                // Setup theme form handlers
+                setupThemeForm();
+                
+                // Setup story point form handlers
+                setupStoryPointForm();
                 
                 // Setup timeline navigation
                 setupTimelineNavigation();
@@ -573,6 +673,123 @@
                 document.getElementById('theme-selector').addEventListener('change', function() {
                     applyTheme(this.value);
                 });
+            }
+            
+            function refreshThemesDisplay() {
+                const themesContainer = document.getElementById('themes-container');
+                const themeCheckboxes = document.getElementById('theme-checkboxes');
+                
+                // Clear existing content
+                themesContainer.innerHTML = '';
+                themeCheckboxes.innerHTML = '';
+                
+                if (timelineData.themes.length === 0) {
+                    themesContainer.innerHTML = '<p class="text-muted">No themes defined yet.</p>';
+                } else {
+                    timelineData.themes.forEach(theme => {
+                        // Add to themes display
+                        const themeElement = document.createElement('div');
+                        themeElement.className = 'theme-item';
+                        themeElement.innerHTML = `
+                            <div>
+                                <span class="theme-indicator" style="background-color: ${theme.color};"></span>
+                                <span>${theme.name}</span>
+                            </div>
+                            <div class="theme-item-remove" data-theme-id="${theme.id}">
+                                <i class="fas fa-trash"></i>
+                            </div>
+                        `;
+                        themesContainer.appendChild(themeElement);
+                        
+                        // Add to theme checkboxes in form
+                        const checkboxDiv = document.createElement('div');
+                        checkboxDiv.className = 'form-check';
+                        checkboxDiv.innerHTML = `
+                            <input class="form-check-input theme-checkbox" type="checkbox" value="${theme.id}" id="theme-${theme.id}">
+                            <label class="form-check-label" for="theme-${theme.id}">
+                                <span class="theme-indicator" style="background-color: ${theme.color};"></span>
+                                ${theme.name}
+                            </label>
+                        `;
+                        themeCheckboxes.appendChild(checkboxDiv);
+                    });
+                    
+                    // Setup theme remove handlers
+                    document.querySelectorAll('.theme-item-remove').forEach(removeBtn => {
+                        removeBtn.addEventListener('click', function() {
+                            const themeId = this.dataset.themeId;
+                            deleteTheme(themeId);
+                        });
+                    });
+                }
+            }
+            
+            function refreshStoryPointsDisplay() {
+                const storyPointsContainer = document.getElementById('story-points-container');
+                
+                // Clear existing content
+                storyPointsContainer.innerHTML = '';
+                
+                if (timelineData.storyPoints.length === 0) {
+                    storyPointsContainer.innerHTML = '<p class="text-muted">No story points defined yet.</p>';
+                } else {
+                    timelineData.storyPoints.forEach(storyPoint => {
+                        const buttonWrapper = document.createElement('div');
+                        buttonWrapper.className = 'd-inline-block position-relative';
+                        
+                        const button = document.createElement('button');
+                        button.type = 'button';
+                        button.className = 'btn btn-sm btn-outline-secondary story-point-btn';
+                        button.textContent = storyPoint.name;
+                        button.dataset.storyPointId = storyPoint.id;
+                        
+                        const removeBtn = document.createElement('div');
+                        removeBtn.className = 'story-point-remove';
+                        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                        removeBtn.dataset.storyPointId = storyPoint.id;
+                        
+                        buttonWrapper.appendChild(button);
+                        buttonWrapper.appendChild(removeBtn);
+                        storyPointsContainer.appendChild(buttonWrapper);
+                        
+                        // Story point click handler
+                        button.addEventListener('click', function() {
+                            const id = this.dataset.storyPointId;
+                            const storyPoint = timelineData.storyPoints.find(sp => sp.id === id);
+                            
+                            if (storyPoint) {
+                                // Apply story point settings to timeline
+                                timeline.moveTo(storyPoint.centerDate, {
+                                    animation: {
+                                        duration: 1000,
+                                        easingFunction: 'easeInOutQuad'
+                                    },
+                                    zoom: true
+                                });
+                                
+                                // Focus on specific events
+                                timeline.setSelection(storyPoint.focusedEventIds);
+                                
+                                // Switch to active perspective
+                                if (storyPoint.activePerspectiveIds && storyPoint.activePerspectiveIds.length > 0) {
+                                    const perspectiveId = storyPoint.activePerspectiveIds[0];
+                                    document.getElementById('active-perspective').value = perspectiveId;
+                                    
+                                    // Trigger change event
+                                    const event = new Event('change');
+                                    document.getElementById('active-perspective').dispatchEvent(event);
+                                }
+                            }
+                        });
+                        
+                        // Remove button handler
+                        removeBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            const storyPointId = this.dataset.storyPointId;
+                            deleteStoryPoint(storyPointId);
+                        });
+                    });
+                }
             }
             
             function initializeVisTimeline(events) {
@@ -1057,6 +1274,228 @@
                 });
             }
             
+            function setupPerspectiveForm() {
+                const addPerspectiveBtn = document.getElementById('add-perspective-btn');
+                const cancelPerspectiveBtn = document.getElementById('cancel-perspective-btn');
+                const perspectiveForm = document.getElementById('perspective-form');
+                const perspectiveFormContainer = document.getElementById('perspective-form-container');
+                
+                // Show/hide form
+                addPerspectiveBtn.addEventListener('click', function() {
+                    perspectiveFormContainer.style.display = 'block';
+                    document.getElementById('timeline-container').style.height = '400px';
+                    timeline.redraw();
+                });
+                
+                cancelPerspectiveBtn.addEventListener('click', function() {
+                    perspectiveFormContainer.style.display = 'none';
+                    document.getElementById('timeline-container').style.height = '600px';
+                    perspectiveForm.reset();
+                    timeline.redraw();
+                });
+                
+                // Form submission
+                perspectiveForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Create new perspective
+                    const newPerspective = {
+                        perspectiveId: `p${Date.now()}`,
+                        perspectiveName: document.getElementById('perspective-name').value,
+                        perspectiveColor: document.getElementById('perspective-color').value,
+                        events: []
+                    };
+                    
+                    // Add to timelineData
+                    timelineData.perspectives.push(newPerspective);
+                    
+                    // Update dropdowns
+                    const perspectiveSelect = document.getElementById('active-perspective');
+                    const eventPerspectiveSelect = document.getElementById('event-perspective');
+                    
+                    const option = document.createElement('option');
+                    option.value = newPerspective.perspectiveId;
+                    option.textContent = newPerspective.perspectiveName;
+                    option.style.color = newPerspective.perspectiveColor;
+                    perspectiveSelect.appendChild(option);
+                    
+                    const eventOption = document.createElement('option');
+                    eventOption.value = newPerspective.perspectiveId;
+                    eventOption.textContent = newPerspective.perspectiveName;
+                    eventPerspectiveSelect.appendChild(eventOption);
+                    
+                    // Save to local storage
+                    saveTimelineData();
+                    
+                    // Hide form and reset
+                    perspectiveFormContainer.style.display = 'none';
+                    document.getElementById('timeline-container').style.height = '600px';
+                    perspectiveForm.reset();
+                    timeline.redraw();
+                });
+            }
+            
+            function setupThemeForm() {
+                const addThemeBtn = document.getElementById('add-theme-btn');
+                const cancelThemeBtn = document.getElementById('cancel-theme-btn');
+                const themeForm = document.getElementById('theme-form');
+                const themeFormContainer = document.getElementById('theme-form-container');
+                
+                // Show/hide form
+                addThemeBtn.addEventListener('click', function() {
+                    themeFormContainer.style.display = 'block';
+                    document.getElementById('timeline-container').style.height = '400px';
+                    timeline.redraw();
+                });
+                
+                cancelThemeBtn.addEventListener('click', function() {
+                    themeFormContainer.style.display = 'none';
+                    document.getElementById('timeline-container').style.height = '600px';
+                    themeForm.reset();
+                    timeline.redraw();
+                });
+                
+                // Form submission
+                themeForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Create new theme
+                    const newTheme = {
+                        id: `t${Date.now()}`,
+                        name: document.getElementById('theme-name').value,
+                        color: document.getElementById('theme-color').value
+                    };
+                    
+                    // Add to timelineData
+                    timelineData.themes.push(newTheme);
+                    
+                    // Refresh theme displays
+                    refreshThemesDisplay();
+                    
+                    // Save to local storage
+                    saveTimelineData();
+                    
+                    // Hide form and reset
+                    themeFormContainer.style.display = 'none';
+                    document.getElementById('timeline-container').style.height = '600px';
+                    themeForm.reset();
+                    timeline.redraw();
+                });
+            }
+            
+            function setupStoryPointForm() {
+                const addStoryPointBtn = document.getElementById('add-story-point-btn');
+                const cancelStoryPointBtn = document.getElementById('cancel-story-point-btn');
+                const storyPointForm = document.getElementById('story-point-form');
+                const storyPointFormContainer = document.getElementById('story-point-form-container');
+                
+                // Show/hide form
+                addStoryPointBtn.addEventListener('click', function() {
+                    // Populate events checkboxes
+                    const eventsContainer = document.getElementById('story-point-events');
+                    eventsContainer.innerHTML = '';
+                    
+                    let allEvents = [];
+                    timelineData.perspectives.forEach(perspective => {
+                        perspective.events.forEach(event => {
+                            allEvents.push({
+                                id: event.id,
+                                title: event.title,
+                                perspective: perspective.perspectiveName
+                            });
+                        });
+                    });
+                    
+                    if (allEvents.length === 0) {
+                        eventsContainer.innerHTML = '<p class="text-muted">No events available.</p>';
+                    } else {
+                        allEvents.forEach(event => {
+                            const checkboxDiv = document.createElement('div');
+                            checkboxDiv.className = 'form-check';
+                            checkboxDiv.innerHTML = `
+                                <input class="form-check-input" type="checkbox" value="${event.id}" id="event-${event.id}">
+                                <label class="form-check-label" for="event-${event.id}">
+                                    ${event.title} <small class="text-muted">(${event.perspective})</small>
+                                </label>
+                            `;
+                            eventsContainer.appendChild(checkboxDiv);
+                        });
+                    }
+                    
+                    // Populate perspectives checkboxes
+                    const perspectivesContainer = document.getElementById('story-point-perspectives');
+                    perspectivesContainer.innerHTML = '';
+                    
+                    if (timelineData.perspectives.length === 0) {
+                        perspectivesContainer.innerHTML = '<p class="text-muted">No perspectives available.</p>';
+                    } else {
+                        timelineData.perspectives.forEach(perspective => {
+                            const checkboxDiv = document.createElement('div');
+                            checkboxDiv.className = 'form-check';
+                            checkboxDiv.innerHTML = `
+                                <input class="form-check-input" type="checkbox" value="${perspective.perspectiveId}" id="perspective-${perspective.perspectiveId}">
+                                <label class="form-check-label" for="perspective-${perspective.perspectiveId}">
+                                    ${perspective.perspectiveName}
+                                </label>
+                            `;
+                            perspectivesContainer.appendChild(checkboxDiv);
+                        });
+                    }
+                    
+                    storyPointFormContainer.style.display = 'block';
+                    document.getElementById('timeline-container').style.height = '400px';
+                    timeline.redraw();
+                });
+                
+                cancelStoryPointBtn.addEventListener('click', function() {
+                    storyPointFormContainer.style.display = 'none';
+                    document.getElementById('timeline-container').style.height = '600px';
+                    storyPointForm.reset();
+                    timeline.redraw();
+                });
+                
+                // Form submission
+                storyPointForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Gather form data
+                    const focusedEventIds = [];
+                    document.querySelectorAll('#story-point-events input:checked').forEach(checkbox => {
+                        focusedEventIds.push(checkbox.value);
+                    });
+                    
+                    const activePerspectiveIds = [];
+                    document.querySelectorAll('#story-point-perspectives input:checked').forEach(checkbox => {
+                        activePerspectiveIds.push(checkbox.value);
+                    });
+                    
+                    // Create new story point
+                    const newStoryPoint = {
+                        id: `sp${Date.now()}`,
+                        name: document.getElementById('story-point-name').value,
+                        centerDate: document.getElementById('story-point-date').value,
+                        zoomLevel: parseInt(document.getElementById('story-point-zoom').value),
+                        focusedEventIds: focusedEventIds,
+                        activePerspectiveIds: activePerspectiveIds
+                    };
+                    
+                    // Add to timelineData
+                    timelineData.storyPoints.push(newStoryPoint);
+                    
+                    // Refresh story points display
+                    refreshStoryPointsDisplay();
+                    
+                    // Save to local storage
+                    saveTimelineData();
+                    
+                    // Hide form and reset
+                    storyPointFormContainer.style.display = 'none';
+                    document.getElementById('timeline-container').style.height = '600px';
+                    storyPointForm.reset();
+                    timeline.redraw();
+                });
+            }
+            
             function deleteEvent(eventId) {
                 // Find the perspective that contains this event
                 timelineData.perspectives.forEach(perspective => {
@@ -1082,6 +1521,46 @@
                 
                 // Save to local storage
                 saveTimelineData();
+            }
+            
+            function deleteTheme(themeId) {
+                // Find and remove the theme
+                const index = timelineData.themes.findIndex(t => t.id === themeId);
+                if (index !== -1) {
+                    timelineData.themes.splice(index, 1);
+                    
+                    // Remove theme from events
+                    timelineData.perspectives.forEach(perspective => {
+                        perspective.events.forEach(event => {
+                            if (event.themeIds) {
+                                const themeIndex = event.themeIds.indexOf(themeId);
+                                if (themeIndex !== -1) {
+                                    event.themeIds.splice(themeIndex, 1);
+                                }
+                            }
+                        });
+                    });
+                    
+                    // Refresh theme displays
+                    refreshThemesDisplay();
+                    
+                    // Save to local storage
+                    saveTimelineData();
+                }
+            }
+            
+            function deleteStoryPoint(storyPointId) {
+                // Find and remove the story point
+                const index = timelineData.storyPoints.findIndex(sp => sp.id === storyPointId);
+                if (index !== -1) {
+                    timelineData.storyPoints.splice(index, 1);
+                    
+                    // Refresh story points display
+                    refreshStoryPointsDisplay();
+                    
+                    // Save to local storage
+                    saveTimelineData();
+                }
             }
             
             function setupTimelineNavigation() {
