@@ -1,0 +1,79 @@
+{
+  "timelineTitle": "My Amazing Timeline",
+  "timelineDescription": "A journey through time and space.",
+  "globalSettings": {
+    "defaultTheme": "modern",
+    "backgroundImage": "url_to_image_or_null",
+    "defaultLanguage": "en"
+  },
+  "perspectives": [
+    {
+      "perspectiveId": "p1",
+      "perspectiveName": "Main Narrative",
+      "perspectiveColor": "#3498db",
+      "events": [
+        {
+          "id": "e1",
+          "title": "Declaration of Independence",
+          "type": "point",
+          "startDate": "1776-07-04T12:00:00Z",
+          "description": "The United States Declaration of Independence was adopted by the Continental Congress announcing the 13 American colonies as independent sovereign states.",
+          "multimedia": [
+            {
+              "type": "image",
+              "url": "path_to_declaration_image.jpg",
+              "caption": "Original Declaration of Independence document"
+            },
+            {
+              "type": "youtube",
+              "videoId": "sample_video_id",
+              "caption": "Video explaining the significance of the Declaration"
+            }
+          ],
+          "location": {
+            "latitude": 39.9496,
+            "longitude": -75.1503,
+            "zoomLevel": 15,
+            "address": "Independence Hall, Philadelphia, PA"
+          },
+          "themeIds": ["t1", "t2"],
+          "sources": [
+            {
+              "text": "National Archives, Declaration of Independence",
+              "url": "https://www.archives.gov/founding-docs/declaration"
+            }
+          ],
+          "annotations": [
+            {
+              "text": "While July 4th is celebrated as Independence Day, the document wasn't actually signed by most delegates until August.",
+              "author": "Historian Note"
+            }
+          ],
+          "customMarkerStyle": "star_icon",
+          "eventColor": "#FF0000"
+        }
+      ]
+    },
+    {
+      "perspectiveId": "p2",
+      "perspectiveName": "Technological Developments",
+      "perspectiveColor": "#e67e22",
+      "events": []
+    }
+  ],
+  "themes": [
+    {"id": "t1", "name": "Political", "color": "#FF0000"},
+    {"id": "t2", "name": "Social", "color": "#00FF00"},
+    {"id": "t3", "name": "Technological", "color": "#0000FF"}
+  ],
+  "storyPoints": [
+    {
+      "id": "sp1",
+      "name": "The Beginning of the Revolution",
+      "zoomLevel": 5,
+      "centerDate": "1776-07-04",
+      "focusedEventIds": ["e1", "e2"],
+      "activePerspectiveIds": ["p1"]
+    }
+  ]
+}

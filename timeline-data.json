@@ -1,0 +1,145 @@
+{
+  "timelineTitle": "Historic Space Exploration and Civil Rights",
+  "timelineDescription": "Key moments that changed humanity's view of space and society.",
+  "globalSettings": {
+    "defaultTheme": "modern",
+    "backgroundImage": null,
+    "defaultLanguage": "en"
+  },
+  "perspectives": [
+    {
+      "perspectiveId": "p1",
+      "perspectiveName": "Space Exploration",
+      "perspectiveColor": "#0057b7",
+      "events": [
+        {
+          "id": "e1",
+          "title": "Apollo 11 Moon Landing",
+          "type": "point",
+          "startDate": "1969-07-20T20:17:00Z",
+          "description": "Apollo 11 was the spaceflight that first landed humans on the Moon. Commander Neil Armstrong and lunar module pilot Buzz Aldrin formed the American crew that landed the Apollo Lunar Module Eagle on July 20, 1969. Armstrong became the first person to step onto the lunar surface six hours later on July 21; Aldrin joined him 19 minutes later.",
+          "multimedia": [
+            {
+              "type": "image",
+              "url": "https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/AS11-40-5875HR.jpg",
+              "caption": "Buzz Aldrin on the Moon, photographed by Neil Armstrong"
+            },
+            {
+              "type": "youtube",
+              "videoId": "S9HdPi9Ikhk",
+              "caption": "Neil Armstrong's first steps on the Moon"
+            }
+          ],
+          "location": {
+            "latitude": 0.67408,
+            "longitude": 23.47297,
+            "zoomLevel": 15,
+            "address": "Sea of Tranquility, Moon"
+          },
+          "themeIds": ["t1", "t3"],
+          "sources": [
+            {
+              "text": "NASA Apollo 11 Mission Overview",
+              "url": "https://www.nasa.gov/mission_pages/apollo/missions/apollo11.html"
+            },
+            {
+              "text": "Smithsonian National Air and Space Museum",
+              "url": "https://airandspace.si.edu/explore/topics/apollo/apollo-program/landing-missions/apollo11.cfm"
+            }
+          ],
+          "annotations": [
+            {
+              "text": "Armstrong's famous quote 'That's one small step for [a] man, one giant leap for mankind' had the 'a' omitted in most recordings due to static.",
+              "author": "Historical Note"
+            }
+          ],
+          "customMarkerStyle": "moon_icon",
+          "eventColor": "#0057b7"
+        }
+      ]
+    },
+    {
+      "perspectiveId": "p2",
+      "perspectiveName": "Civil Rights Movement",
+      "perspectiveColor": "#2E8B57",
+      "events": [
+        {
+          "id": "e2",
+          "title": "March on Washington for Jobs and Freedom",
+          "type": "point",
+          "startDate": "1963-08-28T12:00:00Z",
+          "description": "The March on Washington for Jobs and Freedom was a landmark demonstration that took place in Washington, D.C., where Martin Luther King Jr. delivered his historic 'I Have a Dream' speech advocating for civil and economic rights for African Americans. With over 250,000 attendees, it was one of the largest political rallies for human rights in United States history and is credited with helping to pass the Civil Rights Act of 1964.",
+          "multimedia": [
+            {
+              "type": "image",
+              "url": "https://cdn.loc.gov/service/pnp/ppmsca/03100/03128v.jpg",
+              "caption": "Crowds gathering at the Lincoln Memorial for the March on Washington"
+            },
+            {
+              "type": "youtube",
+              "videoId": "vP4iY1TtS3s",
+              "caption": "Martin Luther King Jr.'s 'I Have a Dream' speech"
+            }
+          ],
+          "location": {
+            "latitude": 38.8893,
+            "longitude": -77.0502,
+            "zoomLevel": 16,
+            "address": "Lincoln Memorial, Washington, D.C."
+          },
+          "themeIds": ["t2", "t4"],
+          "sources": [
+            {
+              "text": "National Archives - March on Washington",
+              "url": "https://www.archives.gov/education/lessons/march-on-washington"
+            },
+            {
+              "text": "Stanford University Martin Luther King, Jr. Research and Education Institute",
+              "url": "https://kinginstitute.stanford.edu/encyclopedia/march-washington-jobs-and-freedom"
+            }
+          ],
+          "annotations": [
+            {
+              "text": "The March was organized by a coalition of civil rights, labor, and religious organizations known as the 'Big Six'.",
+              "author": "Historical Context"
+            }
+          ],
+          "customMarkerStyle": "podium_icon",
+          "eventColor": "#2E8B57"
+        }
+      ]
+    }
+  ],
+  "themes": [
+    {"id": "t1", "name": "Scientific Achievement", "color": "#007BFF"},
+    {"id": "t2", "name": "Social Justice", "color": "#28a745"},
+    {"id": "t3", "name": "Technological Innovation", "color": "#17a2b8"},
+    {"id": "t4", "name": "Human Rights", "color": "#6f42c1"}
+  ],
+  "storyPoints": [
+    {
+      "id": "sp1",
+      "name": "Giant Leaps for Mankind",
+      "zoomLevel": 3,
+      "centerDate": "1969-07-20",
+      "focusedEventIds": ["e1"],
+      "activePerspectiveIds": ["p1"]
+    },
+    {
+      "id": "sp2",
+      "name": "Voices for Change",
+      "zoomLevel": 4,
+      "centerDate": "1963-08-28",
+      "focusedEventIds": ["e2"],
+      "activePerspectiveIds": ["p2"]
+    },
+    {
+      "id": "sp3",
+      "name": "Defining Moments of the 1960s",
+      "zoomLevel": 2,
+      "centerDate": "1966-01-01",
+      "focusedEventIds": ["e1", "e2"],
+      "activePerspectiveIds": ["p1", "p2"]
+    }
+  ]
+}

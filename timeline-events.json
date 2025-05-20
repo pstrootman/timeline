@@ -1,0 +1,108 @@
+{
+  "events": [
+    {
+      "id": "e1",
+      "title": "Apollo 11 Moon Landing",
+      "type": "point",
+      "startDate": "1969-07-20T20:17:40Z",
+      "description": "Neil Armstrong becomes the first human to step on the lunar surface.",
+      "multimedia": [
+        {
+          "type": "image",
+          "url": "apollo11_moon_landing.jpg",
+          "caption": "Neil Armstrong on the Moon"
+        },
+        {
+          "type": "youtube",
+          "videoId": "S9HdPi9Ikhk",
+          "caption": "Apollo 11 Moon Landing - Original NASA Footage"
+        }
+      ],
+      "location": {
+        "latitude": 0.6875,
+        "longitude": 23.4333,
+        "zoomLevel": 5,
+        "address": "Sea of Tranquility, Moon"
+      },
+      "themeIds": ["t1", "t3"],
+      "sources": [
+        {
+          "text": "NASA Apollo 11 Mission Report",
+          "url": "https://www.nasa.gov/mission_pages/apollo/apollo11.html"
+        }
+      ],
+      "annotations": [
+        {
+          "text": "This event marked the culmination of the Space Race between the United States and the Soviet Union.",
+          "author": "Space Historian"
+        }
+      ],
+      "customMarkerStyle": "moon_landing_flag",
+      "eventColor": "#0B3D91"
+    },
+    {
+      "id": "e2",
+      "title": "Wright Brothers First Flight",
+      "type": "point",
+      "startDate": "1903-12-17T10:35:00Z",
+      "description": "Orville and Wilbur Wright make the first successful powered airplane flight near Kitty Hawk, North Carolina.",
+      "multimedia": [
+        {
+          "type": "image",
+          "url": "wright_brothers_flight.jpg",
+          "caption": "The Wright Flyer I"
+        }
+      ],
+      "location": {
+        "latitude": 36.0155,
+        "longitude": -75.6698,
+        "zoomLevel": 12,
+        "address": "Kill Devil Hills, North Carolina, USA"
+      },
+      "themeIds": ["t3"],
+      "sources": [
+        {
+          "text": "Library of Congress Wright Brothers Collection",
+          "url": "https://www.loc.gov/collections/wilbur-and-orville-wright-papers/"
+        }
+      ],
+      "customMarkerStyle": "airplane",
+      "eventColor": "#8B4513"
+    },
+    {
+      "id": "e3",
+      "title": "World War II",
+      "type": "range",
+      "startDate": "1939-09-01T00:00:00Z",
+      "endDate": "1945-09-02T00:00:00Z",
+      "description": "Global war that lasted from 1939 to 1945, involving the majority of the world's nations.",
+      "multimedia": [
+        {
+          "type": "image",
+          "url": "wwii_signing.jpg",
+          "caption": "Japanese Surrender Ceremony"
+        }
+      ],
+      "location": {
+        "latitude": 48.8566,
+        "longitude": 2.3522,
+        "zoomLevel": 4,
+        "address": "Europe"
+      },
+      "themeIds": ["t1", "t2"],
+      "sources": [
+        {
+          "text": "National WWII Museum Archives",
+          "url": "https://www.nationalww2museum.org/"
+        }
+      ],
+      "annotations": [
+        {
+          "text": "The deadliest conflict in human history with over 70 million fatalities.",
+          "author": "Military Historian"
+        }
+      ],
+      "eventColor": "#800000"
+    }
+  ]
+}
