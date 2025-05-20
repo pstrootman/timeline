@@ -1,6 +1,6 @@
 # Interactive Timeline for ArcGIS StoryMaps
 
-This repository contains an interactive historical timeline that can be embedded into ArcGIS StoryMaps presentations.
+An epic timeline maker that can be embedded into ArcGIS StoryMaps presentations.
 
 ## Features
 
