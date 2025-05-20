@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Timeline</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/timeline-js@1.0.0/timeline.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vis-timeline@7.7.0/dist/vis-timeline-graph2d.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -66,17 +67,258 @@
             background-color: #f1f1f1;
             border-top: 1px solid #ddd;
         }
+        
+        /* Timeline navigation buttons */
+        .timeline-navigation {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .timeline-navigation button {
+            margin: 0 5px;
+            padding: 8px 15px;
+        }
+        
+        /* Event form */
+        #event-form-container {
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .multimedia-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .remove-button {
+            color: #dc3545;
+            cursor: pointer;
+        }
+        
+        .theme-selector {
+            margin-bottom: 20px;
+        }
+        
+        .theme-checkbox {
+            margin-right: 10px;
+        }
+        
+        /* Vis Timeline customizations */
+        .vis-item {
+            border-width: 2px;
+            font-size: 0.9em;
+            transition: box-shadow 0.2s ease;
+        }
+        
+        .vis-item:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .vis-item.vis-range {
+            border-radius: 5px;
+        }
+        
+        .vis-time-axis .vis-text {
+            color: #555;
+        }
+        
+        .vis-time-axis .vis-grid.vis-minor {
+            border-color: #f0f0f0;
+        }
+        
+        .vis-time-axis .vis-grid.vis-major {
+            border-color: #e0e0e0;
+        }
+        
+        /* Custom theme styles */
+        .timeline-theme-modern .vis-item {
+            border-radius: 5px;
+        }
+        
+        .timeline-theme-ancient_scroll {
+            background: #f9f4e6;
+        }
+        
+        .timeline-theme-ancient_scroll .vis-item {
+            border-radius: 0;
+            border-style: double;
+            font-family: 'Times New Roman', serif;
+        }
+        
+        .timeline-theme-futuristic {
+            background: #000;
+        }
+        
+        .timeline-theme-futuristic .vis-item {
+            border-radius: 0;
+            border-width: 1px;
+            font-family: 'Courier New', monospace;
+            color: #33ff00;
+            background-color: rgba(0, 50, 80, 0.7);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 id="timeline-title">Loading Timeline...</h1>
         
-        <div class="perspective-switch">
+        <div class="timeline-navigation">
+            <button id="move-left" class="btn btn-outline-primary"><i class="fas fa-arrow-left"></i> Move Back</button>
+            <button id="zoom-out" class="btn btn-outline-secondary"><i class="fas fa-search-minus"></i></button>
+            <button id="fit-all" class="btn btn-outline-secondary"><i class="fas fa-expand-arrows-alt"></i> Fit All</button>
+            <button id="zoom-in" class="btn btn-outline-secondary"><i class="fas fa-search-plus"></i></button>
+            <button id="move-right" class="btn btn-outline-primary">Move Forward <i class="fas fa-arrow-right"></i></button>
+        </div>
+        
+        <div class="perspective-switch d-flex justify-content-between align-items-center">
             <div class="btn-group" id="perspective-buttons" role="group"></div>
+            <div class="timeline-controls">
+                <button id="add-event-btn" class="btn btn-success"><i class="fas fa-plus"></i> Add Event</button>
+                <div class="d-inline-block ms-2">
+                    <select id="theme-selector" class="form-select form-select-sm">
+                        <option value="modern">Modern Theme</option>
+                        <option value="ancient_scroll">Ancient Scroll</option>
+                        <option value="futuristic">Futuristic</option>
+                    </select>
+                </div>
+            </div>
         </div>
         
         <div id="timeline-container"></div>
+        
+        <!-- Event Form Container -->
+        <div id="event-form-container" class="info-section">
+            <h3>Add New Event</h3>
+            <form id="event-form">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="event-title" class="form-label">Event Title *</label>
+                        <input type="text" class="form-control" id="event-title" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Event Type *</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="event-type" id="type-point" value="point" checked>
+                            <label class="form-check-label" for="type-point">
+                                Point in Time
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="event-type" id="type-range" value="range">
+                            <label class="form-check-label" for="type-range">
+                                Time Range
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="event-start-date" class="form-label">Start Date *</label>
+                        <input type="datetime-local" class="form-control" id="event-start-date" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="event-end-date" class="form-label">End Date <small>(Only for Time Range)</small></label>
+                        <input type="datetime-local" class="form-control" id="event-end-date" disabled>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="event-description" class="form-label">Description *</label>
+                    <textarea class="form-control" id="event-description" rows="3" required></textarea>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Location</label>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">Latitude</span>
+                            <input type="number" class="form-control" id="event-latitude" step="any">
+                        </div>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">Longitude</span>
+                            <input type="number" class="form-control" id="event-longitude" step="any">
+                        </div>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">Zoom Level</span>
+                            <input type="number" class="form-control" id="event-zoom" min="1" max="20" value="10">
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text">Address</span>
+                            <input type="text" class="form-control" id="event-address">
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Themes</label>
+                        <div id="theme-checkboxes" class="theme-selector">
+                            <!-- Theme checkboxes will be inserted here -->
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="event-color" class="form-label">Event Color</label>
+                            <input type="color" class="form-control form-control-color" id="event-color" value="#007bff">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="event-marker" class="form-label">Marker Style</label>
+                            <select class="form-select" id="event-marker">
+                                <option value="default">Default</option>
+                                <option value="star">Star</option>
+                                <option value="flag">Flag</option>
+                                <option value="pin">Pin</option>
+                                <option value="circle">Circle</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Multimedia</label>
+                    <div id="multimedia-container">
+                        <!-- Multimedia items will be added here -->
+                    </div>
+                    <button type="button" id="add-multimedia-btn" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-plus"></i> Add Multimedia
+                    </button>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Sources</label>
+                    <div id="sources-container">
+                        <!-- Source items will be added here -->
+                    </div>
+                    <button type="button" id="add-source-btn" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-plus"></i> Add Source
+                    </button>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Annotations</label>
+                    <div id="annotations-container">
+                        <!-- Annotation items will be added here -->
+                    </div>
+                    <button type="button" id="add-annotation-btn" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-plus"></i> Add Annotation
+                    </button>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="event-perspective" class="form-label">Perspective *</label>
+                    <select class="form-select" id="event-perspective" required>
+                        <!-- Perspective options will be added here -->
+                    </select>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <button type="button" id="cancel-event-btn" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Event</button>
+                </div>
+            </form>
+        </div>
         
         <div class="row">
             <div class="col-md-8">
@@ -99,8 +341,79 @@
         </div>
     </div>
     
+    <!-- Multimedia Template -->
+    <template id="multimedia-template">
+        <div class="multimedia-item">
+            <div class="d-flex justify-content-between mb-2">
+                <h6>Multimedia Item</h6>
+                <span class="remove-button"><i class="fas fa-times"></i></span>
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Type</label>
+                <select class="form-select multimedia-type">
+                    <option value="image">Image</option>
+                    <option value="youtube">YouTube Video</option>
+                    <option value="audio">Audio</option>
+                    <option value="3dmodel">3D Model</option>
+                </select>
+            </div>
+            <div class="mb-2 url-field">
+                <label class="form-label">URL</label>
+                <input type="url" class="form-control multimedia-url" placeholder="https://...">
+            </div>
+            <div class="mb-2 video-id-field" style="display: none;">
+                <label class="form-label">YouTube Video ID</label>
+                <input type="text" class="form-control multimedia-video-id" placeholder="dQw4w9WgXcQ">
+            </div>
+            <div class="mb-2 embed-url-field" style="display: none;">
+                <label class="form-label">Embed URL</label>
+                <input type="url" class="form-control multimedia-embed-url" placeholder="https://sketchfab.com/models/...">
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Caption</label>
+                <input type="text" class="form-control multimedia-caption" placeholder="Optional caption">
+            </div>
+        </div>
+    </template>
+    
+    <!-- Source Template -->
+    <template id="source-template">
+        <div class="multimedia-item">
+            <div class="d-flex justify-content-between mb-2">
+                <h6>Source</h6>
+                <span class="remove-button"><i class="fas fa-times"></i></span>
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Citation Text</label>
+                <input type="text" class="form-control source-text" placeholder="Book/Article Title, Author, Page">
+            </div>
+            <div class="mb-2">
+                <label class="form-label">URL (Optional)</label>
+                <input type="url" class="form-control source-url" placeholder="https://...">
+            </div>
+        </div>
+    </template>
+    
+    <!-- Annotation Template -->
+    <template id="annotation-template">
+        <div class="multimedia-item">
+            <div class="d-flex justify-content-between mb-2">
+                <h6>Annotation</h6>
+                <span class="remove-button"><i class="fas fa-times"></i></span>
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Text</label>
+                <textarea class="form-control annotation-text" rows="2" placeholder="Additional information or context..."></textarea>
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Author (Optional)</label>
+                <input type="text" class="form-control annotation-author" placeholder="Your name">
+            </div>
+        </div>
+    </template>
+    
     <footer>
-        <p>Created for ArcGIS StoryMaps | <a href="https://github.com/yourusername/timeline-project" target="_blank">View on GitHub</a></p>
+        <p>Created for ArcGIS StoryMaps | <a href="https://github.com/pstrootman/timeline" target="_blank">View on GitHub</a></p>
     </footer>
 
     <!-- Scripts -->
@@ -108,14 +421,21 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vis-timeline@7.7.0/standalone/umd/vis-timeline-graph2d.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/umd/uuidv4.min.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            let timelineData;
+            let timeline;
+            let currentEvents = [];
+            let activePerspective = null;
+            
             // Load the timeline data
             fetch('timeline-data.json')
                 .then(response => response.json())
                 .then(data => {
-                    initializeTimeline(data);
+                    timelineData = data;
+                    initializeTimeline(timelineData);
                 })
                 .catch(error => {
                     console.error('Error loading timeline data:', error);
@@ -128,9 +448,15 @@
                 document.getElementById('timeline-title').textContent = timelineData.timelineTitle;
                 document.getElementById('timeline-description').textContent = timelineData.timelineDescription;
                 
+                // Set the theme
+                applyTheme(timelineData.globalSettings.defaultTheme || 'modern');
+                
                 // Setup themes
                 const themesContainer = document.getElementById('themes-container');
+                const themeCheckboxes = document.getElementById('theme-checkboxes');
+                
                 timelineData.themes.forEach(theme => {
+                    // Add to themes display
                     const themeElement = document.createElement('div');
                     themeElement.className = 'mb-2';
                     themeElement.innerHTML = `
@@ -138,11 +464,26 @@
                         <span>${theme.name}</span>
                     `;
                     themesContainer.appendChild(themeElement);
+                    
+                    // Add to theme checkboxes in form
+                    const checkboxDiv = document.createElement('div');
+                    checkboxDiv.className = 'form-check';
+                    checkboxDiv.innerHTML = `
+                        <input class="form-check-input theme-checkbox" type="checkbox" value="${theme.id}" id="theme-${theme.id}">
+                        <label class="form-check-label" for="theme-${theme.id}">
+                            <span class="theme-indicator" style="background-color: ${theme.color};"></span>
+                            ${theme.name}
+                        </label>
+                    `;
+                    themeCheckboxes.appendChild(checkboxDiv);
                 });
                 
                 // Setup perspective buttons
                 const perspectiveButtons = document.getElementById('perspective-buttons');
+                const perspectiveSelect = document.getElementById('event-perspective');
+                
                 timelineData.perspectives.forEach((perspective, index) => {
+                    // Add to perspective buttons
                     const button = document.createElement('button');
                     button.type = 'button';
                     button.className = `btn btn-outline-primary ${index === 0 ? 'active' : ''}`;
@@ -166,12 +507,26 @@
                         this.style.backgroundColor = perspective.perspectiveColor;
                         this.style.color = '#fff';
                         
+                        // Update current perspective and events
+                        activePerspective = perspective;
+                        currentEvents = perspective.events;
+                        
                         // Update timeline with this perspective's events
                         updateTimelineEvents(perspective.events);
                     });
                     
                     perspectiveButtons.appendChild(button);
+                    
+                    // Add to perspective dropdown in form
+                    const option = document.createElement('option');
+                    option.value = perspective.perspectiveId;
+                    option.textContent = perspective.perspectiveName;
+                    perspectiveSelect.appendChild(option);
                 });
+                
+                // Set the first perspective as active
+                activePerspective = timelineData.perspectives[0];
+                currentEvents = activePerspective.events;
                 
                 // Setup story points
                 const storyPointsContainer = document.getElementById('story-points-container');
@@ -192,12 +547,7 @@
                         });
                         
                         // Focus on specific events
-                        const allItems = timeline.itemsData.getIds();
-                        timeline.itemsData.forEach(item => {
-                            if (storyPoint.focusedEventIds.includes(item.id)) {
-                                timeline.setSelection([item.id]);
-                            }
-                        });
+                        timeline.setSelection(storyPoint.focusedEventIds);
                         
                         // Switch to active perspectives
                         perspectiveButtons.querySelectorAll('button').forEach(btn => {
@@ -211,10 +561,19 @@
                 });
                 
                 // Initialize the timeline with the first perspective's events
-                initializeVisTimeline(timelineData.perspectives[0].events);
+                initializeVisTimeline(currentEvents);
+                
+                // Setup event form handlers
+                setupEventForm();
+                
+                // Setup timeline navigation
+                setupTimelineNavigation();
+                
+                // Setup theme selector
+                document.getElementById('theme-selector').addEventListener('change', function() {
+                    applyTheme(this.value);
+                });
             }
-            
-            let timeline; // Global reference to the timeline object
             
             function initializeVisTimeline(events) {
                 // Prepare timeline data
@@ -235,13 +594,16 @@
                     height: '100%',
                     minHeight: '500px',
                     zoomMin: 86400000, // One day in milliseconds
-                    zoomMax: 31536000000 * 20, // 20 years in milliseconds
+                    zoomMax: 31536000000 * 100, // 100 years in milliseconds
                     orientation: 'bottom',
                     showCurrentTime: false,
                     tooltip: {
                         followMouse: true,
                         overflowMethod: 'flip'
-                    }
+                    },
+                    zoomable: true,
+                    moveable: true,
+                    selectable: true
                 };
                 
                 // Initialize the timeline
@@ -324,6 +686,13 @@
                                         <iframe src="https://www.youtube.com/embed/${media.videoId}" 
                                             title="YouTube video" allowfullscreen></iframe>
                                       </div>`;
+                    } else if (media.type === 'audio') {
+                        modalHTML += `<div class="card-body">
+                                        <audio controls class="w-100">
+                                            <source src="${media.url}" type="audio/mpeg">
+                                            Your browser does not support the audio element.
+                                        </audio>
+                                      </div>`;
                     } else if (media.type === '3dmodel') {
                         modalHTML += `<div class="ratio ratio-4x3">
                                         <iframe src="${media.embedUrl}" 
@@ -334,6 +703,12 @@
                     if (media.caption) {
                         modalHTML += `<div class="card-body">
                                         <p class="card-text">${media.caption}</p>
+                                      </div>`;
+                    }
+                    
+                    if (event.multimedia.length > 1) {
+                        modalHTML += `<div class="card-footer">
+                                        <small class="text-muted">+ ${event.multimedia.length - 1} more media items</small>
                                       </div>`;
                     }
                     
@@ -395,11 +770,32 @@
                     modalHTML += `</div></div></div>`;
                 }
                 
+                // Add themes
+                if (event.themeIds && event.themeIds.length > 0) {
+                    modalHTML += `<div class="col-md-6 mb-3">
+                                    <h6>Themes</h6>
+                                    <div class="card">
+                                        <div class="card-body">`;
+                    
+                    event.themeIds.forEach(themeId => {
+                        const theme = timelineData.themes.find(t => t.id === themeId);
+                        if (theme) {
+                            modalHTML += `<span class="badge rounded-pill me-1 mb-1" style="background-color: ${theme.color};">
+                                            ${theme.name}
+                                          </span>`;
+                        }
+                    });
+                    
+                    modalHTML += `</div></div></div>`;
+                }
+                
                 // Close modal HTML
                 modalHTML += `
                                 </div>
                             </div>
-                            <div class="modal-footer">
+                            <div class="modal-footer d-flex justify-content-between">
+                                <button type="button" class="btn btn-outline-danger btn-sm" id="delete-event-btn" 
+                                    data-event-id="${event.id}">Delete Event</button>
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             </div>
                         </div>
@@ -415,9 +811,339 @@
                 // Add the modal to the page
                 document.body.insertAdjacentHTML('beforeend', modalHTML);
                 
+                // Setup delete event handler
+                document.getElementById('delete-event-btn').addEventListener('click', function() {
+                    const eventId = this.dataset.eventId;
+                    deleteEvent(eventId);
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('eventModal'));
+                    modal.hide();
+                });
+                
                 // Show the modal
                 const modal = new bootstrap.Modal(document.getElementById('eventModal'));
                 modal.show();
+            }
+            
+            function setupEventForm() {
+                const addEventBtn = document.getElementById('add-event-btn');
+                const cancelEventBtn = document.getElementById('cancel-event-btn');
+                const eventForm = document.getElementById('event-form');
+                const eventFormContainer = document.getElementById('event-form-container');
+                
+                // Show/hide form
+                addEventBtn.addEventListener('click', function() {
+                    eventFormContainer.style.display = 'block';
+                    document.getElementById('timeline-container').style.height = '400px';
+                    timeline.redraw();
+                });
+                
+                cancelEventBtn.addEventListener('click', function() {
+                    eventFormContainer.style.display = 'none';
+                    document.getElementById('timeline-container').style.height = '600px';
+                    eventForm.reset();
+                    timeline.redraw();
+                });
+                
+                // Handle event type change
+                const typePoint = document.getElementById('type-point');
+                const typeRange = document.getElementById('type-range');
+                const endDateInput = document.getElementById('event-end-date');
+                
+                typePoint.addEventListener('change', function() {
+                    if (this.checked) {
+                        endDateInput.disabled = true;
+                    }
+                });
+                
+                typeRange.addEventListener('change', function() {
+                    if (this.checked) {
+                        endDateInput.disabled = false;
+                    }
+                });
+                
+                // Multimedia handling
+                const addMultimediaBtn = document.getElementById('add-multimedia-btn');
+                const multimediaContainer = document.getElementById('multimedia-container');
+                const multimediaTemplate = document.getElementById('multimedia-template');
+                
+                addMultimediaBtn.addEventListener('click', function() {
+                    const clone = document.importNode(multimediaTemplate.content, true);
+                    
+                    // Setup type change handler
+                    const typeSelect = clone.querySelector('.multimedia-type');
+                    const urlField = clone.querySelector('.url-field');
+                    const videoIdField = clone.querySelector('.video-id-field');
+                    const embedUrlField = clone.querySelector('.embed-url-field');
+                    
+                    typeSelect.addEventListener('change', function() {
+                        if (this.value === 'youtube') {
+                            urlField.style.display = 'none';
+                            videoIdField.style.display = 'block';
+                            embedUrlField.style.display = 'none';
+                        } else if (this.value === '3dmodel') {
+                            urlField.style.display = 'none';
+                            videoIdField.style.display = 'none';
+                            embedUrlField.style.display = 'block';
+                        } else {
+                            urlField.style.display = 'block';
+                            videoIdField.style.display = 'none';
+                            embedUrlField.style.display = 'none';
+                        }
+                    });
+                    
+                    // Setup remove button
+                    const removeBtn = clone.querySelector('.remove-button');
+                    removeBtn.addEventListener('click', function() {
+                        this.closest('.multimedia-item').remove();
+                    });
+                    
+                    multimediaContainer.appendChild(clone);
+                });
+                
+                // Sources handling
+                const addSourceBtn = document.getElementById('add-source-btn');
+                const sourcesContainer = document.getElementById('sources-container');
+                const sourceTemplate = document.getElementById('source-template');
+                
+                addSourceBtn.addEventListener('click', function() {
+                    const clone = document.importNode(sourceTemplate.content, true);
+                    
+                    // Setup remove button
+                    const removeBtn = clone.querySelector('.remove-button');
+                    removeBtn.addEventListener('click', function() {
+                        this.closest('.multimedia-item').remove();
+                    });
+                    
+                    sourcesContainer.appendChild(clone);
+                });
+                
+                // Annotations handling
+                const addAnnotationBtn = document.getElementById('add-annotation-btn');
+                const annotationsContainer = document.getElementById('annotations-container');
+                const annotationTemplate = document.getElementById('annotation-template');
+                
+                addAnnotationBtn.addEventListener('click', function() {
+                    const clone = document.importNode(annotationTemplate.content, true);
+                    
+                    // Setup remove button
+                    const removeBtn = clone.querySelector('.remove-button');
+                    removeBtn.addEventListener('click', function() {
+                        this.closest('.multimedia-item').remove();
+                    });
+                    
+                    annotationsContainer.appendChild(clone);
+                });
+                
+                // Form submission
+                eventForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Gather form data
+                    const newEvent = {
+                        id: `e${Date.now()}`,
+                        title: document.getElementById('event-title').value,
+                        type: document.querySelector('input[name="event-type"]:checked').value,
+                        startDate: document.getElementById('event-start-date').value,
+                        description: document.getElementById('event-description').value,
+                        eventColor: document.getElementById('event-color').value,
+                        customMarkerStyle: document.getElementById('event-marker').value
+                    };
+                    
+                    if (newEvent.type === 'range') {
+                        newEvent.endDate = document.getElementById('event-end-date').value;
+                    }
+                    
+                    // Get location data if provided
+                    const latitude = document.getElementById('event-latitude').value;
+                    const longitude = document.getElementById('event-longitude').value;
+                    
+                    if (latitude && longitude) {
+                        newEvent.location = {
+                            latitude: parseFloat(latitude),
+                            longitude: parseFloat(longitude),
+                            zoomLevel: parseInt(document.getElementById('event-zoom').value),
+                            address: document.getElementById('event-address').value
+                        };
+                    }
+                    
+                    // Get themes
+                    newEvent.themeIds = [];
+                    document.querySelectorAll('.theme-checkbox:checked').forEach(checkbox => {
+                        newEvent.themeIds.push(checkbox.value);
+                    });
+                    
+                    // Get multimedia items
+                    newEvent.multimedia = [];
+                    document.querySelectorAll('#multimedia-container .multimedia-item').forEach(item => {
+                        const type = item.querySelector('.multimedia-type').value;
+                        const caption = item.querySelector('.multimedia-caption').value;
+                        
+                        const multimedia = {
+                            type: type,
+                            caption: caption
+                        };
+                        
+                        if (type === 'youtube') {
+                            multimedia.videoId = item.querySelector('.multimedia-video-id').value;
+                        } else if (type === '3dmodel') {
+                            multimedia.embedUrl = item.querySelector('.multimedia-embed-url').value;
+                        } else {
+                            multimedia.url = item.querySelector('.multimedia-url').value;
+                        }
+                        
+                        if ((type === 'youtube' && multimedia.videoId) || 
+                            (type === '3dmodel' && multimedia.embedUrl) ||
+                            (multimedia.url)) {
+                            newEvent.multimedia.push(multimedia);
+                        }
+                    });
+                    
+                    // Get sources
+                    newEvent.sources = [];
+                    document.querySelectorAll('#sources-container .multimedia-item').forEach(item => {
+                        const text = item.querySelector('.source-text').value;
+                        const url = item.querySelector('.source-url').value;
+                        
+                        if (text) {
+                            newEvent.sources.push({
+                                text: text,
+                                url: url
+                            });
+                        }
+                    });
+                    
+                    // Get annotations
+                    newEvent.annotations = [];
+                    document.querySelectorAll('#annotations-container .multimedia-item').forEach(item => {
+                        const text = item.querySelector('.annotation-text').value;
+                        const author = item.querySelector('.annotation-author').value;
+                        
+                        if (text) {
+                            newEvent.annotations.push({
+                                text: text,
+                                author: author
+                            });
+                        }
+                    });
+                    
+                    // Add event to current perspective
+                    const perspectiveId = document.getElementById('event-perspective').value;
+                    const perspective = timelineData.perspectives.find(p => p.perspectiveId === perspectiveId);
+                    
+                    if (perspective) {
+                        perspective.events.push(newEvent);
+                        
+                        // If this is the current perspective, update the timeline
+                        if (activePerspective.perspectiveId === perspectiveId) {
+                            currentEvents = perspective.events;
+                            updateTimelineEvents(currentEvents);
+                        }
+                        
+                        // Save to local storage 
+                        saveTimelineData();
+                        
+                        // Hide form and reset
+                        eventFormContainer.style.display = 'none';
+                        document.getElementById('timeline-container').style.height = '600px';
+                        eventForm.reset();
+                        
+                        // Clear multimedia, sources, annotations
+                        multimediaContainer.innerHTML = '';
+                        sourcesContainer.innerHTML = '';
+                        annotationsContainer.innerHTML = '';
+                        
+                        timeline.redraw();
+                    }
+                });
+            }
+            
+            function deleteEvent(eventId) {
+                // Find the perspective that contains this event
+                timelineData.perspectives.forEach(perspective => {
+                    const index = perspective.events.findIndex(e => e.id === eventId);
+                    if (index !== -1) {
+                        perspective.events.splice(index, 1);
+                        
+                        // If this is the current perspective, update the timeline
+                        if (activePerspective.perspectiveId === perspective.perspectiveId) {
+                            currentEvents = perspective.events;
+                            updateTimelineEvents(currentEvents);
+                        }
+                    }
+                });
+                
+                // Also update any story points that reference this event
+                timelineData.storyPoints.forEach(storyPoint => {
+                    const index = storyPoint.focusedEventIds.indexOf(eventId);
+                    if (index !== -1) {
+                        storyPoint.focusedEventIds.splice(index, 1);
+                    }
+                });
+                
+                // Save to local storage
+                saveTimelineData();
+            }
+            
+            function setupTimelineNavigation() {
+                // Time navigation buttons
+                document.getElementById('move-left').addEventListener('click', function() {
+                    const currentWindow = timeline.getWindow();
+                    const windowRange = currentWindow.end - currentWindow.start;
+                    timeline.moveTo(new Date(currentWindow.start.getTime() - windowRange * 0.5), {
+                        animation: {
+                            duration: 500,
+                            easingFunction: 'easeInOutQuad'
+                        }
+                    });
+                });
+                
+                document.getElementById('move-right').addEventListener('click', function() {
+                    const currentWindow = timeline.getWindow();
+                    const windowRange = currentWindow.end - currentWindow.start;
+                    timeline.moveTo(new Date(currentWindow.start.getTime() + windowRange * 0.5), {
+                        animation: {
+                            duration: 500,
+                            easingFunction: 'easeInOutQuad'
+                        }
+                    });
+                });
+                
+                document.getElementById('zoom-in').addEventListener('click', function() {
+                    timeline.zoomIn(0.5);
+                });
+                
+                document.getElementById('zoom-out').addEventListener('click', function() {
+                    timeline.zoomOut(0.5);
+                });
+                
+                document.getElementById('fit-all').addEventListener('click', function() {
+                    timeline.fit();
+                });
+            }
+            
+            function applyTheme(themeName) {
+                const container = document.getElementById('timeline-container');
+                
+                // Remove any previous theme classes
+                container.classList.remove('timeline-theme-modern', 'timeline-theme-ancient_scroll', 'timeline-theme-futuristic');
+                
+                // Add the selected theme class
+                container.classList.add(`timeline-theme-${themeName}`);
+                
+                // Update selector
+                document.getElementById('theme-selector').value = themeName;
+                
+                if (timeline) {
+                    timeline.redraw();
+                }
+            }
+            
+            function saveTimelineData() {
+                // This would normally save to a server
+                localStorage.setItem('timelineData', JSON.stringify(timelineData));
+                
+                // In a real application, this would be an API call to save the data
+                console.log('Timeline data saved:', timelineData);
             }
         });
     </script>
