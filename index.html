@@ -130,6 +130,21 @@
             padding: 8px 15px;
         }
         
+        /* Data management buttons */
+        .data-management {
+            margin-bottom: 15px;
+            text-align: right;
+        }
+        
+        .data-management button {
+            margin: 0 5px;
+        }
+        
+        /* File input for import */
+        #file-input {
+            display: none;
+        }
+        
         /* Event form */
         #event-form-container,
         #perspective-form-container,
@@ -225,6 +240,17 @@
             <button id="fit-all" class="btn btn-outline-secondary"><i class="fas fa-expand-arrows-alt"></i> Fit All</button>
             <button id="zoom-in" class="btn btn-outline-secondary"><i class="fas fa-search-plus"></i></button>
             <button id="move-right" class="btn btn-outline-primary">Move Forward <i class="fas fa-arrow-right"></i></button>
+        </div>
+        
+        <!-- Data Management -->
+        <div class="data-management">
+            <button id="export-btn" class="btn btn-outline-success btn-sm">
+                <i class="fas fa-download"></i> Export Timeline
+            </button>
+            <button id="import-btn" class="btn btn-outline-info btn-sm">
+                <i class="fas fa-upload"></i> Import Timeline
+            </button>
+            <input type="file" id="file-input" accept=".json">
         </div>
         
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -582,18 +608,104 @@
             let currentEvents = [];
             let activePerspective = null;
             
-            // Load the timeline data
-            fetch('timeline-data.json')
-                .then(response => response.json())
-                .then(data => {
-                    timelineData = data;
+            // Check if we have saved data in localStorage first
+            const savedData = localStorage.getItem('timelineData');
+            if (savedData) {
+                try {
+                    timelineData = JSON.parse(savedData);
                     initializeTimeline(timelineData);
-                })
-                .catch(error => {
-                    console.error('Error loading timeline data:', error);
-                    document.getElementById('timeline-container').innerHTML = 
-                        '<div class="alert alert-danger">Error loading timeline data. Please check console for details.</div>';
-                });
+                } catch (error) {
+                    console.error('Error parsing saved data:', error);
+                    loadFromFile();
+                }
+            } else {
+                loadFromFile();
+            }
+            
+            // Load from the default file
+            function loadFromFile() {
+                // Load the timeline data from file
+                fetch('timeline-data.json')
+                    .then(response => response.json())
+                    .then(data => {
+                        timelineData = data;
+                        initializeTimeline(timelineData);
+                    })
+                    .catch(error => {
+                        console.error('Error loading timeline data:', error);
+                        document.getElementById('timeline-container').innerHTML = 
+                            '<div class="alert alert-danger">Error loading timeline data. Please check console for details.</div>';
+                    });
+            }
+            
+            // Setup export/import functionality
+            document.getElementById('export-btn').addEventListener('click', exportTimelineData);
+            document.getElementById('import-btn').addEventListener('click', function() {
+                document.getElementById('file-input').click();
+            });
+            
+            document.getElementById('file-input').addEventListener('change', importTimelineData);
+            
+            function exportTimelineData() {
+                // Create a JSON blob from the timeline data
+                const dataStr = JSON.stringify(timelineData, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                
+                // Create a download link
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'timeline-data.json';
+                
+                // Append to the document, click it, and remove it
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Free up the URL
+                setTimeout(function() {
+                    URL.revokeObjectURL(url);
+                }, 100);
+            }
+            
+            function importTimelineData(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                // Read the file
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        // Parse the JSON
+                        const importedData = JSON.parse(e.target.result);
+                        
+                        // Validate the data structure (basic check)
+                        if (importedData.perspectives && importedData.themes && importedData.storyPoints) {
+                            // Update the timeline data
+                            timelineData = importedData;
+                            
+                            // Save to localStorage
+                            saveTimelineData();
+                            
+                            // Reinitialize the timeline
+                            initializeTimeline(timelineData);
+                            
+                            // Show success alert
+                            alert('Timeline data imported successfully!');
+                        } else {
+                            throw new Error('Invalid timeline data format');
+                        }
+                    } catch (error) {
+                        console.error('Error importing timeline data:', error);
+                        alert('Error importing timeline data. Please check the file format.');
+                    }
+                };
+                
+                reader.readAsText(file);
+                
+                // Reset the file input
+                event.target.value = '';
+            }
                 
             function initializeTimeline(timelineData) {
                 // Update page elements with timeline metadata
@@ -1618,10 +1730,9 @@
             }
             
             function saveTimelineData() {
-                // This would normally save to a server
+                // Save to local storage
                 localStorage.setItem('timelineData', JSON.stringify(timelineData));
                 
-                // In a real application, this would be an API call to save the data
                 console.log('Timeline data saved:', timelineData);
             }
         });
